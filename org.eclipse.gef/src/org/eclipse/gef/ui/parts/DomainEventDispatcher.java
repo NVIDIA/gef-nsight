@@ -353,7 +353,12 @@ public class DomainEventDispatcher extends SWTEventDispatcher {
 	 * @see EventDispatcher#dispatchMouseMoved(org.eclipse.swt.events.MouseEvent)
 	 */
 	public void dispatchMouseMoved(org.eclipse.swt.events.MouseEvent me) {
-		if (!editorCaptured) {
+		/*
+		 * NVIDIA: we want mouse move events to be sent to both tools and to the
+		 * figures. Specifically for the timeline we want drag tools to be
+		 * active at the same time as highlighting support.
+		 */
+		if (true /* !editorCaptured */) {
 			super.dispatchMouseMoved(me);
 			if (draw2dBusy())
 				return;

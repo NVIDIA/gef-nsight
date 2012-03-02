@@ -125,6 +125,16 @@ public class RulerRootEditPart extends SimpleRootEditPart {
 		}
 
 		/**
+		 * NVIDIA: when requested we really do need to layout so that when ruler
+		 * is being resized it redraws correctly
+		 * 
+		 * @see org.eclipse.draw2d.Figure#layout()
+		 */
+		protected void layout() {
+			doLayout(true);
+		}
+
+		/**
 		 * This is the method that does the actual layout. We don't want a
 		 * layout to occur when layout() is invoked, rather when something
 		 * changes in the shared RangeModel.

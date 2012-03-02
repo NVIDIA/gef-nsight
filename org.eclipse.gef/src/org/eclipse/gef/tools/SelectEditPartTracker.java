@@ -88,7 +88,9 @@ public class SelectEditPartTracker extends TargetingTool implements DragTracker 
 	 * @see org.eclipse.gef.tools.AbstractTool#handleButtonDown(int)
 	 */
 	protected boolean handleButtonDown(int button) {
-		if ((button == 3 || button == 1) && isInState(STATE_INITIAL))
+		/** NVIDIA: we only want selection with button 1 */
+		// if ((button == 3 || button == 1) && isInState(STATE_INITIAL))
+		if ((button == 1) && isInState(STATE_INITIAL))
 			performConditionalSelection();
 
 		if (button != 1) {
