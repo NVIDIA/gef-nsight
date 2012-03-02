@@ -591,10 +591,13 @@ public abstract class AbstractEditPartViewer implements EditPartViewer {
 	 * @see EditPartViewer#select(EditPart)
 	 */
 	public void select(EditPart editpart) {
-		// If selection isn't changing, do nothing.
-		if ((getSelectedEditParts().size() == 1)
-				&& (getSelectedEditParts().get(0) == editpart))
-			return;
+		/*
+		 * NVIDIA - we want identical selections to propagate, e.g. we want to
+		 * be notified of multiple selections within the same timeline figure.
+		 * // If selection isn't changing, do nothing. if
+		 * ((getSelectedEditParts().size() == 1) &&
+		 * (getSelectedEditParts().get(0) == editpart)) return;
+		 */
 		primDeselectAll();
 		appendSelection(editpart); // fireSelectionChanged() is called here
 	}

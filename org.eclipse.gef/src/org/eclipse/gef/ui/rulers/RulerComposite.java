@@ -8,6 +8,17 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
+
+/**
+ * Copyright 2010 NVIDIA Corporation.  All rights reserved.
+ *
+ * Customization of RulerComposite so we can have our own ruler provider.
+ * The required customization is to add getRulerEditPartFactory() method that 
+ * we can override to provide our own factory.
+ * 
+ * Also some other customization to match our ruler needs
+ */
+
 package org.eclipse.gef.ui.rulers;
 
 import java.beans.PropertyChangeEvent;
@@ -29,6 +40,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.jface.action.MenuManager;
 
 import org.eclipse.draw2d.AbstractBorder;
 import org.eclipse.draw2d.ColorConstants;
@@ -44,12 +56,13 @@ import org.eclipse.draw2d.geometry.Insets;
 import org.eclipse.gef.DragTracker;
 import org.eclipse.gef.EditDomain;
 import org.eclipse.gef.EditPart;
+import org.eclipse.gef.EditPartFactory;
 import org.eclipse.gef.GraphicalEditPart;
 import org.eclipse.gef.GraphicalViewer;
 import org.eclipse.gef.Handle;
+import org.eclipse.gef.KeyHandler;
 import org.eclipse.gef.RootEditPart;
 import org.eclipse.gef.internal.ui.rulers.GuideEditPart;
-import org.eclipse.gef.internal.ui.rulers.RulerContextMenuProvider;
 import org.eclipse.gef.internal.ui.rulers.RulerEditPart;
 import org.eclipse.gef.internal.ui.rulers.RulerEditPartFactory;
 import org.eclipse.gef.internal.ui.rulers.RulerRootEditPart;
@@ -151,14 +164,63 @@ public class RulerComposite extends Composite {
 		return new Rectangle(0, 0, 0, 0);
 	}
 
+	/**
+	 * Get the factory for rulers for this composite.
+	 * 
+	 * [[[ NVIDIA we had to add this so we could provide our own factory and
+	 * thereby our own ruler implementations. ]]]
+	 * 
+	 * @param viewer
+	 *            the GraphicalViewer
+	 * @return the factory for rulers.
+	 */
+	protected EditPartFactory getRulerEditPartFactory(GraphicalViewer viewer) {
+		return new RulerEditPartFactory(viewer);
+	}
+
+	/**
+	 * Get the context menu provider for a ruler.
+	 * 
+	 * [[[ NVIDIA we had to add this so we could provide our own context menu
+	 * providers ]]]
+	 * 
+	 * @param viewer
+	 *            the GraphicalViewer
+	 * @param isHorizontal
+	 *            true if horizontal ruler, false if vertical
+	 * @return the context menu provider, or null if no context menu.
+	 */
+	protected MenuManager getRulerContextMenuProvider(GraphicalViewer viewer,
+			boolean isHorizontal) {
+		return null;
+	}
+
+	/**
+	 * Get the key handler for a ruler.
+	 * 
+	 * [[[ NVIDIA we had to add this so we could provide our own key handler ]]]
+	 * 
+	 * @param viewer
+	 *            the GraphicalViewer
+	 * @param isHorizontal
+	 *            true if horizontal ruler, false if vertical
+	 * @return the key handler, or null if no key handler.
+	 */
+	protected KeyHandler getRulerKeyHandler(GraphicalViewer viewer,
+			boolean isHorizontal) {
+		return null;
+	}
+
 	private GraphicalViewer createRulerContainer(int orientation) {
-		ScrollingGraphicalViewer viewer = new RulerViewer();
 		final boolean isHorizontal = orientation == PositionConstants.NORTH
 				|| orientation == PositionConstants.SOUTH;
+		ScrollingGraphicalViewer viewer = new RulerViewer();
+		viewer.setContextMenu(getRulerContextMenuProvider(viewer, isHorizontal));
+		viewer.setKeyHandler(getRulerKeyHandler(viewer, isHorizontal));
 
 		// Finish initializing the viewer
 		viewer.setRootEditPart(new RulerRootEditPart(isHorizontal));
-		viewer.setEditPartFactory(new RulerEditPartFactory(diagramViewer));
+		viewer.setEditPartFactory(getRulerEditPartFactory(diagramViewer));
 		viewer.createControl(this);
 		((GraphicalEditPart) viewer.getRootEditPart()).getFigure().setBorder(
 				new RulerBorder(isHorizontal));
@@ -535,8 +597,10 @@ public class RulerComposite extends Composite {
 		 * @see org.eclipse.gef.ui.parts.AbstractEditPartViewer#init()
 		 */
 		protected void init() {
-			setContextMenu(new RulerContextMenuProvider(this));
-			setKeyHandler(new RulerKeyHandler(this));
+			// [[[ NVIDIA disable these... we implement them above using
+			// functions that allow us to override ]]]
+			// setContextMenu(new RulerContextMenuProvider(this));
+			// setKeyHandler(new RulerKeyHandler(this));
 		}
 
 		/**
